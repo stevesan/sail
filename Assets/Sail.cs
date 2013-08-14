@@ -9,7 +9,7 @@ public class Sail : MonoBehaviour
     public Rigidbody target;
     public Vector3 localSailNormal;
 
-    public Vector3 debugWind;
+    public bool catchesWind = false;
 
     Vector3 prevPos;
 
@@ -38,9 +38,12 @@ public class Sail : MonoBehaviour
         //----------------------------------------
         //  Wind
         //----------------------------------------
-        Vector3 windForce = wsNormal * Vector3.Dot( debugWind.normalized, wsNormal );
-        target.AddForceAtPosition( windForce, transform.position );
+        if( catchesWind && Wind.main != null )
+        {
+            Vector3 windForce = wsNormal * Vector3.Dot( Wind.main.force, wsNormal );
+            target.AddForceAtPosition( windForce, transform.position );
 
-        Debug.DrawLine( transform.position, transform.position+windForce*DebugDrawScale, Color.blue );
+            Debug.DrawLine( transform.position, transform.position+windForce*DebugDrawScale, Color.blue );
+        }
     }
 }
