@@ -1,0 +1,11 @@
+*.swp
+*.swo
+*.swn
+.DS_Store
+Library
+Temp
+*.pidb
+*.unityproj
+*.sln
+*.userprefs
+*.csproj
