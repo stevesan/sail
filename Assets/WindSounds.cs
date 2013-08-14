@@ -17,7 +17,7 @@ public class WindSounds : MonoBehaviour
     {
         // place self in the correct position relative to the player.
         // ie. if wind is coming from North, place ourselves North of player.
-        Vector3 offset = -Wind.main.force.normalized;
+        Vector3 offset = -Wind.main.force.normalized * 2;
         transform.position = offset + listener.position;
     }
 }
