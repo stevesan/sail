@@ -18,10 +18,11 @@ public class BoatControls : MonoBehaviour {
 	// Update is called once per frame
 	void Update ()
     {
-        if( Input.GetButtonDown("RudderRight") && (rudder.localEulerAngles.y < 90 || rudder.localEulerAngles.y >= 265) )
-            rudder.Rotate( new Vector3(0, 15, 0) );
-        else if( Input.GetButtonDown("RudderLeft") && (rudder.localEulerAngles.y > 270 || rudder.localEulerAngles.y <= 95) )
-            rudder.Rotate( new Vector3(0, -15, 0) );
+        float rudderDegs = 10;
+        if( Input.GetButtonDown("RudderRight") && (rudder.localEulerAngles.y < (90-rudderDegs/2) || rudder.localEulerAngles.y >= (270-rudderDegs/2)) )
+            rudder.Rotate( new Vector3(0, rudderDegs, 0) );
+        else if( Input.GetButtonDown("RudderLeft") && (rudder.localEulerAngles.y > (270+rudderDegs/2) || rudder.localEulerAngles.y <= (90+rudderDegs/2)) )
+            rudder.Rotate( new Vector3(0, -rudderDegs, 0) );
 
         //----------------------------------------
         //  Sheet/sail control

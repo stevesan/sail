@@ -10,7 +10,7 @@ public class WindSounds : MonoBehaviour
     {
         // compute volume dependent on magnitude
         float windMag = Wind.main.force.magnitude;
-        audio.volume = Utils.Unlerp( 0, 2, windMag );
+        audio.volume = Utils.Unlerp( 0, 10, windMag );
     }
 
     void LateUpdate()
