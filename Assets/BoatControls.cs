@@ -6,6 +6,8 @@ public class BoatControls : MonoBehaviour {
     public Transform rudder;
     public HingeJoint mast;
     public Transform player;
+    public MainSheet mainSheet;
+    public float lenPerSheetChange;
 
     private int xNudges = 0;
     private int zNudges = 0;
@@ -35,12 +37,14 @@ public class BoatControls : MonoBehaviour {
             mast.useLimits = true;
             limits.min = Mathf.Min( 0, limits.min+5 );
             limits.max = Mathf.Max( 0, limits.max-5 );
+            mainSheet.sheetInLength += lenPerSheetChange;
         }
         else if( Input.GetButtonDown("SheetOut") )
         {
             mast.useLimits = true;
             limits.min = Mathf.Max( -180, limits.min-5 );
             limits.max = Mathf.Min( 180, limits.max+5 );
+            mainSheet.sheetInLength -= lenPerSheetChange;
         }
 
         // release the sheet blocker
@@ -50,6 +54,7 @@ public class BoatControls : MonoBehaviour {
             mast.useLimits = false;
             limits.min = -180;
             limits.max = 180;
+            mainSheet.sheetInLength = 0f;
         }
 
         mast.limits = limits;
