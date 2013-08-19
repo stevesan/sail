@@ -26,6 +26,11 @@ public class MainSheet : MonoBehaviour
         }
     }
 
+    public float GetMaxPossibleReach()
+    {
+        return segments.Count * segLength;
+    }
+
     void LateUpdate()
     {
         Vector3 toTarget = target.position - transform.position;
@@ -36,9 +41,9 @@ public class MainSheet : MonoBehaviour
         float numCyclesFloat = numSegsUsed*1f / segsPerCycle;
         float realisticReach = Mathf.Min( maxReach, targetReach );
 
-        Debug.DrawLine( transform.position + transform.up*0.5f,
-                transform.position + toTarget.normalized*maxReach + transform.up*0.5f, Color.red );
-        Debug.Log("maxReach = "+maxReach);
+        //Debug.DrawLine( transform.position + transform.up*0.5f,
+                //transform.position + toTarget.normalized*maxReach + transform.up*0.5f, Color.red );
+        //Debug.Log("maxReach = "+maxReach);
 
         float frequency = 1f;
 
@@ -55,9 +60,9 @@ public class MainSheet : MonoBehaviour
         Vector3 yAxis = Vector3.Cross( zAxis, (nextToTarget.position-target.position).normalized ).normalized;
         Vector3 xAxis = Vector3.Cross( yAxis, zAxis );
 
-        Debug.DrawLine( transform.position, transform.position+xAxis, Color.red );
-        Debug.DrawLine( transform.position, transform.position+yAxis, Color.green );
-        Debug.DrawLine( transform.position, transform.position+zAxis, Color.blue );
+        //Debug.DrawLine( transform.position, transform.position+xAxis, Color.red );
+        //Debug.DrawLine( transform.position, transform.position+yAxis, Color.green );
+        //Debug.DrawLine( transform.position, transform.position+zAxis, Color.blue );
 
         for( int i = 0; i < segments.Count; i++ )
         {

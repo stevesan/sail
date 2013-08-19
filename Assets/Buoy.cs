@@ -7,9 +7,18 @@ public class Buoy : MonoBehaviour {
     public float height = 1;
     public float maxMag = 10;
 
+    void Awake()
+    {
+        if( target == null )
+            target = Utils.FindComponentUpward<Rigidbody>(gameObject);
+    }
+
     void FixedUpdate()
     {
-        float fraction = Utils.Unlerp( 0, -height, transform.position.y );
-        target.AddForceAtPosition( Vector3.up*fraction*maxMag, transform.position );
+        if( target != null )
+        {
+            float fraction = Utils.Unlerp( 0, -height, transform.position.y );
+            target.AddForceAtPosition( Vector3.up*fraction*maxMag, transform.position );
+        }
     }
 }

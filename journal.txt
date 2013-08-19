@@ -1,4 +1,9 @@
 
-- visual feedback for main sheet
+TODO:
 - docks
+
+TABLED:
 - centerboard control
+
+DONE:
+- visual feedback for main sheet
