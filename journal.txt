@@ -1,9 +1,18 @@
 
 TODO:
-- docks
+
+- progression:
+    start in narrow dock, perp to wind.
+    then S-shaped narrows, to get used to ruddering
+    then sharper U turn, for a tack
+    check points
+- edit lake to have some jibing situations. More S shape
 
 TABLED:
 - centerboard control
+- docks
+- i think controlling wind should be an advanced unlock or something..
+- day night cycle for higher winds when it's night?
 
 DONE:
 - visual feedback for main sheet

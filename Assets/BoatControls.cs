@@ -3,6 +3,9 @@ using System.Collections;
 
 public class BoatControls : MonoBehaviour
 {
+    const int MaxShifts = 2;
+    const float ShiftDist = 0.7f;
+
     public Transform rudder;
     public HingeJoint sailJoint;
     public Transform boatTrans;
@@ -10,10 +13,11 @@ public class BoatControls : MonoBehaviour
     public MainSheet mainSheet;
     public float lenPerSheetChange;
 
-    private int xNudges = 0;
-    private int zNudges = 0;
+    private int xShifts = 0;
 
     private Vector3 bsAnchorToTargetOrig;
+    private bool saveQueued = false;
+    private bool loadQueued = false;
 
     void Start()
     {
@@ -64,9 +68,7 @@ public class BoatControls : MonoBehaviour
             limits.max = Mathf.Min( 180, limits.max+sailStep );
         }
 
-
         // release the sheet blocker
-        // TODO: play sound
         if( Input.GetKeyDown("space") )
         {
             sailJoint.useLimits = false;
@@ -90,30 +92,17 @@ public class BoatControls : MonoBehaviour
         //----------------------------------------
         //  Player position
         //----------------------------------------
-        const int MaxNudges = 2;
-        const float nudgeDist = 0.7f;
-        /*
-           Don't really need back and forth movement
-        if( Input.GetKeyDown("w") && zNudges < MaxNudges )
+
+        if( Input.GetKeyDown("d") && xShifts < MaxShifts )
         {
-            zNudges++;
-            player.transform.localPosition += new Vector3(0, 0, nudgeDist);
+            xShifts++;
+            player.transform.localPosition += new Vector3(ShiftDist, 0, 0);
         }
-        if( Input.GetKeyDown("s") && zNudges > -MaxNudges )
+
+        if( Input.GetKeyDown("a") && xShifts > -MaxShifts )
         {
-            zNudges--;
-            player.transform.localPosition -= new Vector3(0, 0, nudgeDist);
-        }
-        */
-        if( Input.GetKeyDown("d") && xNudges < MaxNudges )
-        {
-            xNudges++;
-            player.transform.localPosition += new Vector3(nudgeDist, 0, 0);
-        }
-        if( Input.GetKeyDown("a") && xNudges > -MaxNudges )
-        {
-            xNudges--;
-            player.transform.localPosition -= new Vector3(nudgeDist, 0, 0);
+            xShifts--;
+            player.transform.localPosition -= new Vector3(ShiftDist, 0, 0);
         }
 
         //----------------------------------------
@@ -140,5 +129,64 @@ public class BoatControls : MonoBehaviour
                 sailJoint.transform.parent = oldSailParent;
             }
         }
+
+        //----------------------------------------
+        //  Save/load
+        //----------------------------------------
+        if( Input.GetKeyDown("7") )
+            saveQueued = true;
+        else if( Input.GetKeyDown("9") )
+            loadQueued = true;
 	}
+
+    public Vector3 GetBoatPosition()
+    {
+        return boatTrans.transform.position;
+    }
+
+    public void FixedUpdate()
+    {
+        if( saveQueued )
+            gameObject.BroadcastMessage("QuickSave", SendMessageOptions.DontRequireReceiver );
+        else if( loadQueued )
+            gameObject.BroadcastMessage("QuickLoad", SendMessageOptions.DontRequireReceiver );
+
+        saveQueued = false;
+        loadQueued = false;
+    }
+
+    public void QuickSave()
+    {
+        Debug.Log("quick saving");
+
+        PlayerPrefs.SetInt("sailUseLimits", sailJoint.useLimits ? 1:0);
+        PlayerPrefs.SetFloat("sailLimitsMin", sailJoint.limits.min);
+        PlayerPrefs.SetFloat("sailLimitsMax", sailJoint.limits.max);
+
+        Utils.SaveRigidbody( "boat", boatTrans.rigidbody );
+        Utils.SaveTransform( "rudder", rudder );
+        Utils.SaveRigidbody( "sail", sailJoint.rigidbody );
+
+        PlayerPrefs.SetFloat("sheetInLength", mainSheet.sheetInLength);
+        PlayerPrefs.SetInt("xShifts", xShifts);
+        Utils.SaveTransform( "player", player.transform );
+    }
+
+    public void QuickLoad()
+    {
+
+        sailJoint.useLimits = PlayerPrefs.GetInt("sailUseLimits", sailJoint.useLimits ? 1:0) == 1;
+        JointLimits limits = sailJoint.limits;
+        limits.min = PlayerPrefs.GetFloat("sailLimitsMin", limits.min);
+        limits.max = PlayerPrefs.GetFloat("sailLimitsMax", limits.max);
+        sailJoint.limits = limits;
+
+        Utils.LoadRigidbody( "boat", boatTrans.rigidbody );
+        Utils.LoadTransform( "rudder", rudder );
+        Utils.LoadRigidbody( "sail", sailJoint.rigidbody );
+
+        mainSheet.sheetInLength = PlayerPrefs.GetFloat("sheetInLength", mainSheet.sheetInLength);
+        xShifts = PlayerPrefs.GetInt("xShifts", xShifts);
+        Utils.LoadTransform( "player", player.transform );
+    }
 }

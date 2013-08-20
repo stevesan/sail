@@ -5,6 +5,11 @@ using System.IO;
 
 public class Bottle : MonoBehaviour
 {
+    static string[] bottle2message = {
+        "Hello",
+        "World",
+        "Yo"
+        };
     static int NumExistingBottles = 0;
     static int NumBottlesGot = 0;
 
@@ -12,13 +17,18 @@ public class Bottle : MonoBehaviour
 
     public ParticleSystem getFxPrefab;
     public TextMesh distText;
-    public string message;
 
     private int bottleId = -1;
 
     void Awake()
     {
         bottleId = NumExistingBottles++;
+
+        if( bottleId >= bottle2message.Length )
+            Debug.LogError("Too many bottles, not enough messages!");
+
+        if( PlayerPrefs.GetInt("gotBottle"+bottleId, 0) == 1 )
+            Destroy(gameObject);
     }
 
     void Update()
@@ -68,6 +78,7 @@ public class Bottle : MonoBehaviour
                 if(getFxPrefab != null )
                     Instantiate( getFxPrefab, transform.position, Quaternion.Euler(-90, 0, 0) );
                 WriteMessage();
+                PlayerPrefs.SetInt("gotBottle"+bottleId, 1);
                 Destroy(gameObject);
                 break;
             }
@@ -90,8 +101,11 @@ public class Bottle : MonoBehaviour
 
     void WriteMessage()
     {
-        StreamWriter writer = new StreamWriter("bottle-message-"+bottleId+".txt");
-        writer.WriteLine(message);
-        writer.Close();
+        if( !Application.isWebPlayer )
+        {
+            StreamWriter writer = new StreamWriter("bottle-message-"+bottleId+".txt");
+            writer.WriteLine(bottle2message[bottleId]);
+            writer.Close();
+        }
     }
 }

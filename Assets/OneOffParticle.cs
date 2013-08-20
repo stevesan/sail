@@ -9,6 +9,5 @@ public class OneOffParticle : MonoBehaviour
     {
         if( !particleSystem.isPlaying )
             Destroy(gameObject);
-	
 	}
 }

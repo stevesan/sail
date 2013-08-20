@@ -26,6 +26,7 @@ public class Sail : MonoBehaviour
 
     void FixedUpdate()
     {
+        // We can NOT just use target.velocity here, since we are concerned about our own velocity!
         Vector3 velocity = (transform.position - prevPos) / Time.fixedDeltaTime;
         Vector3 wsNormal = transform.TransformDirection( localSailNormal );
         Vector3 dragForce = -modulus * wsNormal * Vector3.Dot(wsNormal, velocity);
@@ -45,5 +46,15 @@ public class Sail : MonoBehaviour
 
             Debug.DrawLine( transform.position, transform.position+windForce*DebugDrawScale, Color.blue );
         }
+    }
+
+    void QuickSave()
+    {
+        Utils.SaveVector3( gameObject.name+".sailPrevPos", prevPos );
+    }
+
+    void QuickLoad()
+    {
+        Utils.LoadVector3( gameObject.name+".sailPrevPos", ref prevPos );
     }
 }
