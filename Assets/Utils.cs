@@ -96,4 +96,39 @@ public class Utils
         rb.velocity = vel;
         rb.angularVelocity = angvel;
     }
+
+    [System.Serializable]
+    public class SmoothDampedFloat
+    {
+        public float current;
+        public float target;
+        public float smoothTime = 0.5f;
+        public bool isAngle = false;
+
+        private float velocity;
+
+        public void Update()
+        {
+            if( isAngle )
+                current = Mathf.SmoothDampAngle( current, target, ref velocity, smoothTime );
+            else
+                current = Mathf.SmoothDamp( current, target, ref velocity, smoothTime );
+        }
+
+        public void ProfileSave( string prefix )
+        {
+            PlayerPrefs.SetFloat(prefix+".current", current);
+            PlayerPrefs.SetFloat(prefix+".target", target);
+            PlayerPrefs.SetFloat(prefix+".velocity", velocity);
+            PlayerPrefs.SetInt(prefix+".isAngle", isAngle?1:0);
+        }
+
+        public void ProfileLoad( string prefix )
+        {
+            current = PlayerPrefs.GetFloat(prefix+".current", current);
+            target = PlayerPrefs.GetFloat(prefix+".target", target);
+            velocity = PlayerPrefs.GetFloat(prefix+".velocity", velocity);
+            isAngle = 1 == PlayerPrefs.GetInt(prefix+".isAngle", isAngle?1:0);
+        }
+    }
 }

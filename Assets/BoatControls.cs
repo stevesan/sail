@@ -14,6 +14,8 @@ public class BoatControls : MonoBehaviour
     public float lenPerSheetChange;
 
     private int xShifts = 0;
+    public Utils.SmoothDampedFloat playerX = new Utils.SmoothDampedFloat();
+    public Utils.SmoothDampedFloat rudderYaw = new Utils.SmoothDampedFloat();
 
     private Vector3 bsAnchorToTargetOrig;
     private bool saveQueued = false;
@@ -43,10 +45,13 @@ public class BoatControls : MonoBehaviour
 	void Update ()
     {
         float rudderStep = 10;
-        if( Input.GetKeyDown("c") && (rudder.localEulerAngles.y < (90-rudderStep/2) || rudder.localEulerAngles.y >= (270-rudderStep/2)) )
-            rudder.Rotate( new Vector3(0, rudderStep, 0) );
-        else if( Input.GetKeyDown("z") && (rudder.localEulerAngles.y > (270+rudderStep/2) || rudder.localEulerAngles.y <= (90+rudderStep/2)) )
-            rudder.Rotate( new Vector3(0, -rudderStep, 0) );
+        if( Input.GetKeyDown("c") && (rudderYaw.target < (90-rudderStep/2) || rudderYaw.target >= (270-rudderStep/2)) )
+            rudderYaw.target += rudderStep;
+        else if( Input.GetKeyDown("z") && (rudderYaw.target > (270+rudderStep/2) || rudderYaw.target <= (90+rudderStep/2)) )
+            rudderYaw.target -= rudderStep;
+        rudderYaw.isAngle = true;
+        rudderYaw.Update();
+        rudder.localEulerAngles = new Vector3( 0, rudderYaw.current, 0 );
 
         //----------------------------------------
         //  Sheet/sail control
@@ -94,16 +99,13 @@ public class BoatControls : MonoBehaviour
         //----------------------------------------
 
         if( Input.GetKeyDown("d") && xShifts < MaxShifts )
-        {
             xShifts++;
-            player.transform.localPosition += new Vector3(ShiftDist, 0, 0);
-        }
-
         if( Input.GetKeyDown("a") && xShifts > -MaxShifts )
-        {
             xShifts--;
-            player.transform.localPosition -= new Vector3(ShiftDist, 0, 0);
-        }
+
+        playerX.target = xShifts * ShiftDist;
+        playerX.Update();
+        player.transform.localPosition = new Vector3(playerX.current, 0, 0);
 
         //----------------------------------------
         //  Jab the sail left/right
@@ -170,6 +172,9 @@ public class BoatControls : MonoBehaviour
         PlayerPrefs.SetFloat("sheetInLength", mainSheet.sheetInLength);
         PlayerPrefs.SetInt("xShifts", xShifts);
         Utils.SaveTransform( "player", player.transform );
+
+        playerX.ProfileSave("playerXDamper");
+        rudderYaw.ProfileSave("rudderYaw");
     }
 
     public void QuickLoad()
@@ -188,5 +193,8 @@ public class BoatControls : MonoBehaviour
         mainSheet.sheetInLength = PlayerPrefs.GetFloat("sheetInLength", mainSheet.sheetInLength);
         xShifts = PlayerPrefs.GetInt("xShifts", xShifts);
         Utils.LoadTransform( "player", player.transform );
+
+        playerX.ProfileLoad("playerXDamper");
+        rudderYaw.ProfileLoad("rudderYaw");
     }
 }
