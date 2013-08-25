@@ -25,13 +25,21 @@ public class Waves : MonoBehaviour
         Vector3 pos = new Vector3( followTarget.position.x, transform.position.y, followTarget.position.z );
         transform.position = pos;
 
+
         //----------------------------------------
         //  Update shader properties
         //----------------------------------------
         Vector3 dir = Lake.main.GetWaveDirection();
         float offset = Lake.main.GetWaveOffset();
-        renderer.material.SetVector( "Direction", dir );
-        renderer.material.SetVector( "Origin", offset*dir-transform.position );
+
+        // orient grid mesh in the direciton of the waves, to avoid bad looking geometric aliasing
+        transform.forward = dir;
+        renderer.material.SetVector( "Direction", new Vector3(0,0,1) );
+
+        Vector3 wsWaveOrigin = offset*dir;
+        Vector3 lsWaveOrigin = transform.InverseTransformPoint(wsWaveOrigin);
+        renderer.material.SetVector( "Origin", lsWaveOrigin );
+
         renderer.material.SetFloat( "Amplitude", Lake.main.wavesAmp );
         renderer.material.SetFloat( "Frequency", Lake.main.wavesFreq );
 

@@ -20,6 +20,8 @@ public class BoatControls : MonoBehaviour
 
     private int xShifts = 0;
     public Utils.SmoothDampedFloat playerX = new Utils.SmoothDampedFloat();
+
+    private int rudderNotch = 0;
     public Utils.SmoothDampedFloat rudderYaw = new Utils.SmoothDampedFloat();
 
     private Vector3 bsAnchorToTargetOrig;
@@ -49,11 +51,13 @@ public class BoatControls : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
-        float rudderStep = 10;
-        if( Input.GetKeyDown("c") && (rudderYaw.target < (90-rudderStep/2) || rudderYaw.target >= (270-rudderStep/2)) )
-            rudderYaw.target += rudderStep;
-        else if( Input.GetKeyDown("z") && (rudderYaw.target > (270+rudderStep/2) || rudderYaw.target <= (90+rudderStep/2)) )
-            rudderYaw.target -= rudderStep;
+        if( Input.GetKeyDown("c") && rudderNotch < 8 )
+            rudderNotch++;
+
+        if( Input.GetKeyDown("z") && rudderNotch > -8 )
+            rudderNotch--;
+
+        rudderYaw.target = rudderNotch * 10;
         rudderYaw.isAngle = true;
         rudderYaw.Update();
         rudder.localEulerAngles = new Vector3( 0, rudderYaw.current, 0 );
@@ -210,6 +214,8 @@ public class BoatControls : MonoBehaviour
         PlayerPrefs.SetInt("xShifts", xShifts);
         Utils.SaveTransform( "player", player.transform );
 
+        PlayerPrefs.SetInt("rudderNotch", rudderNotch);
+
         playerX.ProfileSave("playerXDamper");
         rudderYaw.ProfileSave("rudderYaw");
     }
@@ -230,6 +236,8 @@ public class BoatControls : MonoBehaviour
         mainSheet.sheetInLength = PlayerPrefs.GetFloat("sheetInLength", mainSheet.sheetInLength);
         xShifts = PlayerPrefs.GetInt("xShifts", xShifts);
         Utils.LoadTransform( "player", player.transform );
+
+        rudderNotch = PlayerPrefs.GetInt("rudderNotch", rudderNotch);
 
         playerX.ProfileLoad("playerXDamper");
         rudderYaw.ProfileLoad("rudderYaw");

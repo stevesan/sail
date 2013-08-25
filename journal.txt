@@ -1,13 +1,17 @@
 
 TODO:
 
-- speed particles
-- splash sounds?
 - progression:
     start in narrow dock, perp to wind.
     then S-shaped narrows, to get used to ruddering
     then sharper U turn, for a tack
-    check points
+
+    skill progression:
+        rudder
+        
+- speed particles
+- splash sounds?
+    should have the up/down motion of the boat correspond with wooshes and slaps
 
 TABLED:
 - centerboard control
