@@ -1,12 +1,13 @@
 
 TODO:
 
+- speed particles
+- splash sounds?
 - progression:
     start in narrow dock, perp to wind.
     then S-shaped narrows, to get used to ruddering
     then sharper U turn, for a tack
     check points
-- edit lake to have some jibing situations. More S shape
 
 TABLED:
 - centerboard control
@@ -16,3 +17,5 @@ TABLED:
 
 DONE:
 - visual feedback for main sheet
+- rudder for pushing against shore
+- aim particles for pushing off. maybe a world-space handprint

@@ -12,6 +12,11 @@ public class BoatControls : MonoBehaviour
     public Transform player;
     public MainSheet mainSheet;
     public float lenPerSheetChange;
+    public float paddlePushForceMagnitude = 1f;
+    public float paddlePushLength = 10f;
+
+    public GameObject paddlePushFx;
+    public GUITexture pushCrosshair;
 
     private int xShifts = 0;
     public Utils.SmoothDampedFloat playerX = new Utils.SmoothDampedFloat();
@@ -115,12 +120,12 @@ public class BoatControls : MonoBehaviour
             sailJoint.rigidbody.AddForceAtPosition( -boatTrans.right * jabMag, sailJoint.transform.position );
         if( Input.GetKeyDown("e") )
             sailJoint.rigidbody.AddForceAtPosition( boatTrans.right * jabMag, sailJoint.transform.position );
-
+        // We should counter that force on the boat, to avoid a net translational force.
 
         //----------------------------------------
         //  Capsizing..
         //----------------------------------------
-        if( Vector3.Dot(boatTrans.up, Vector3.up) < -0.5f )
+        if( Vector3.Dot(boatTrans.up, Vector3.up) < 0.0f )
         {
             if( Input.GetKeyDown("p") )
             {
@@ -148,6 +153,9 @@ public class BoatControls : MonoBehaviour
 
     public void FixedUpdate()
     {
+        //----------------------------------------
+        //  Save/load during fixed update, to play nicely with Physics
+        //----------------------------------------
         if( saveQueued )
             gameObject.BroadcastMessage("QuickSave", SendMessageOptions.DontRequireReceiver );
         else if( loadQueued )
@@ -155,6 +163,35 @@ public class BoatControls : MonoBehaviour
 
         saveQueued = false;
         loadQueued = false;
+
+        //----------------------------------------
+        //  Poking the shore
+        //----------------------------------------
+        pushCrosshair.color = Color.white;
+        Ray ray = Camera.main.ViewportPointToRay( new Vector3(0.5f, 0.5f, 0) );
+        foreach( RaycastHit hit in Physics.RaycastAll(ray, paddlePushLength) )
+        {
+            GameObject gob = hit.collider.gameObject;
+
+            // make sure we didn't hit our own boat
+            if( Utils.FindComponentUpward<BoatControls>(gob) != this
+                    && Utils.FindComponentUpward<Lake>(gob) == null )
+            {
+                // we CAN push off
+                pushCrosshair.color = Color.green;
+
+                if( Input.GetButtonDown("PaddlePush") )
+                {
+                    // Do push
+                    Vector3 force = -ray.direction * paddlePushForceMagnitude;
+                    boatTrans.rigidbody.AddForceAtPosition( force, ray.origin );
+
+                    GameObject fx = (GameObject)Instantiate(paddlePushFx, hit.point, Quaternion.identity);
+                    fx.transform.forward = hit.normal;
+                }
+                break;
+            }
+        }
     }
 
     public void QuickSave()
