@@ -8,6 +8,8 @@ public class Waves : MonoBehaviour
 
     public Transform debugBuoy;
 
+    public float visualAmplitudeScale = 1f;
+
 	// Use this for initialization
 	void Start()
     {
@@ -40,7 +42,7 @@ public class Waves : MonoBehaviour
         Vector3 lsWaveOrigin = transform.InverseTransformPoint(wsWaveOrigin);
         renderer.material.SetVector( "Origin", lsWaveOrigin );
 
-        renderer.material.SetFloat( "Amplitude", Utils.InverseTransformLength(transform, Lake.main.wavesAmp) );
+        renderer.material.SetFloat( "Amplitude", Utils.InverseTransformLength(transform, Lake.main.wavesAmp) * visualAmplitudeScale );
         renderer.material.SetFloat( "Frequency", 1f / Utils.InverseTransformLength(transform, 1f / Lake.main.wavesFreq) );
 
         if( debugBuoy )
