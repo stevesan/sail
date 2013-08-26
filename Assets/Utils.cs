@@ -131,4 +131,11 @@ public class Utils
             isAngle = 1 == PlayerPrefs.GetInt(prefix+".isAngle", isAngle?1:0);
         }
     }
+
+    public static float InverseTransformLength( Transform transform, float length )
+    {
+        Vector3 delta = new Vector3( length, 0, 0 );
+        return (transform.InverseTransformPoint(delta)
+                - transform.InverseTransformPoint(Vector3.zero)).magnitude;
+    }
 }

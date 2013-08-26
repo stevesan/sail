@@ -58,7 +58,7 @@ v2f vert(appdata v)
     o.uv = v.uv;
 
     o.color = MainColor;
-    o.color.a = fadeScale*(sinval/2+0.5);
+    //o.color.a = fadeScale*(sinval/2+0.5);
     //o.color *= saturate(dot( v.normal, float3(0,1,0) ));
 
 	return o;
@@ -87,7 +87,7 @@ Subshader {
 
         half4 frag( v2f i ) : COLOR
         {
-            // TMEP
+            // TEMP
             return i.color;
 
             /*

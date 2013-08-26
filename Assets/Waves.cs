@@ -22,9 +22,11 @@ public class Waves : MonoBehaviour
 	// Update is called once per frame
 	void LateUpdate ()
     {
-        Vector3 pos = new Vector3( followTarget.position.x, transform.position.y, followTarget.position.z );
-        transform.position = pos;
-
+        if( followTarget != null )
+        {
+            Vector3 pos = new Vector3( followTarget.position.x, transform.position.y, followTarget.position.z );
+            transform.position = pos;
+        }
 
         //----------------------------------------
         //  Update shader properties
@@ -40,8 +42,8 @@ public class Waves : MonoBehaviour
         Vector3 lsWaveOrigin = transform.InverseTransformPoint(wsWaveOrigin);
         renderer.material.SetVector( "Origin", lsWaveOrigin );
 
-        renderer.material.SetFloat( "Amplitude", Lake.main.wavesAmp );
-        renderer.material.SetFloat( "Frequency", Lake.main.wavesFreq );
+        renderer.material.SetFloat( "Amplitude", Utils.InverseTransformLength(transform, Lake.main.wavesAmp) );
+        renderer.material.SetFloat( "Frequency", 1f / Utils.InverseTransformLength(transform, 1f / Lake.main.wavesFreq) );
 
         if( debugBuoy )
         {

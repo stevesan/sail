@@ -30,8 +30,8 @@ public class UnsmoothGrid : MonoBehaviour
         for( int i = 0; i < rows+1; i++ )
         for( int j = 0; j < cols+1; j++ )
         {
-            float x = i*1f/rows;
-            float z = j*1f/cols;
+            float x = i*1f/rows-0.5f;
+            float z = j*1f/cols-0.5f;
             uniqueVerts[ i*(cols+1) + j ] = new Vector3( x, Random.value*displacementMag, z );
         }
 
@@ -55,7 +55,7 @@ public class UnsmoothGrid : MonoBehaviour
         for( int i = 0; i < GetNumTriVerts(); i++ )
         {
             tris[i] = i;
-            uvs[i] = new Vector2( verts[i].x, verts[i].z );
+            uvs[i] = new Vector2( verts[i].x+0.5f, verts[i].z+0.5f );
         }
 
         // clear mesh first

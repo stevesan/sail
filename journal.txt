@@ -1,6 +1,8 @@
 
 TODO:
 
+- water: need to get basic lighting working in shader...
+
 - progression:
     start in narrow dock, perp to wind.
     then S-shaped narrows, to get used to ruddering
@@ -23,3 +25,6 @@ DONE:
 - visual feedback for main sheet
 - rudder for pushing against shore
 - aim particles for pushing off. maybe a world-space handprint
+- new low poly water:
+    can't have grid just following the player around... just make giant grid? 
+    hm ok, ran into unity's 65k vert limit again.. ok, let's see how it looks with 100x100 grid res, and worry about chunking if necessary.
