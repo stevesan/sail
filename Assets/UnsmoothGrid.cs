@@ -32,7 +32,8 @@ public class UnsmoothGrid : MonoBehaviour
         {
             float x = i*1f/rows-0.5f;
             float z = j*1f/cols-0.5f;
-            uniqueVerts[ i*(cols+1) + j ] = new Vector3( x, Random.value*displacementMag, z );
+            uniqueVerts[ i*(cols+1) + j ] = new Vector3( x,
+                    Mathf.Lerp(-1, 1, Random.value)*displacementMag, z );
         }
 
         Vector3[] verts = new Vector3[ GetNumTriVerts() ];

@@ -34,9 +34,7 @@ public class Waves : MonoBehaviour
         Vector3 dir = Lake.main.GetWaveDirection();
         float offset = Lake.main.GetWaveOffset();
 
-        // orient grid mesh in the direciton of the waves, to avoid bad looking geometric aliasing
-        transform.forward = dir;
-        renderer.material.SetVector( "Direction", new Vector3(0,0,1) );
+        renderer.material.SetVector( "Direction", dir );
 
         Vector3 wsWaveOrigin = offset*dir;
         Vector3 lsWaveOrigin = transform.InverseTransformPoint(wsWaveOrigin);
