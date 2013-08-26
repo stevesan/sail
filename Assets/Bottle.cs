@@ -27,7 +27,7 @@ public class Bottle : MonoBehaviour
         if( bottleId >= bottle2message.Length )
             Debug.LogError("Too many bottles, not enough messages!");
 
-        if( PlayerPrefs.GetInt("gotBottle"+bottleId, 0) == 1 )
+        if( !Application.isEditor && PlayerPrefs.GetInt("gotBottle"+bottleId, 0) == 1 )
             Destroy(gameObject);
     }
 
