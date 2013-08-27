@@ -1,26 +1,46 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class LODGrid : MonoBehaviour
 {
+    // If not set, Camera.main will be used
+    public Transform viewPositionOverride;
     public GameObject nearPrefab;
     public GameObject farPrefab;
 
     // would recommend keeping local scale to 1, and considering this the world-space size of your cells
     public Vector2 cellSize;    
-
     public int rows = 10;
     public int cols = 10;
-    public int numRingsNear;
+    public int numNearRings;
 
-    private GameObject[] cells;
+    public bool debugFreeze;
+
+    GameObject[,] cells;
+    bool[,] cellWasNear;
+    Queue<GameObject> unusedNearObjs = new Queue<GameObject>();
 
     private int prevRow = -1;
     private int prevCol = -1;
 
     void Awake()
     {
-        cells = new GameObject[ rows * cols ];
+        cells = new GameObject[ rows, cols ];
+        cellWasNear = new bool[ rows, cols ];
+
+        for( int i = 0; i < rows; i++ )
+        for( int j = 0; j < cols; j++ )
+        {
+            cells[i,j] = null;
+            cellWasNear[i,j] = false;
+        }
+    }
+
+    public bool IsValid( int i, int j )
+    {
+        return i >= 0 && j >= 0
+            && i < rows && j < cols;
     }
 
     public int GetRow(Vector3 wsPos)
@@ -39,9 +59,13 @@ public class LODGrid : MonoBehaviour
                 0, cols-1 );
     }
 
-    public GameObject GetCell( int i, int j )
+    public Vector3 GetCellCenter( int i, int j )
     {
-        return cells[ cols*i + j ];
+        return transform.TransformPoint(
+                new Vector3(
+                    (j+0.5f) * cellSize.x,
+                    0,
+                    (i+0.5f) * cellSize.y ));
     }
 
 	// Use this for initialization
@@ -49,41 +73,87 @@ public class LODGrid : MonoBehaviour
 	
 	}
 
-    Vector3 GetViewPoint()
+    Vector3 GetViewPosition()
     {
-        return Camera.main.transform.position;
+        if( viewPositionOverride != null )
+            return viewPositionOverride.position;
+        else
+            return Camera.main.transform.position;
     }
 
-    private void UpdateCell( int i, int j, int ci, int cj )
+    private void UpdateOldNearCell( int i, int j, int currRow, int currCol )
     {
-        bool isNear = Mathf.Abs(i-ci) <= numRingsNear
-            && Mathf.Abs(j-cj) <= numRingsNear;
+        if( !IsValid(i,j) )
+            return;
 
-        bool wasNear = GetCell(i,j) != null && GetCell(i,j).activeInHierarchy;
+        bool stillNear =
+            Mathf.Abs(i-currRow) <= numNearRings
+            && Mathf.Abs(j-currCol) <= numNearRings;
 
-        if( isNear )
+        if( !stillNear )
         {
+            // no longer near. give back its game object
+            if( cells[i,j] != null )
+            {
+                cells[i,j].SetActive(false);
+                unusedNearObjs.Enqueue( cells[i,j] );
+                cells[i,j] = null;
+            }
+        }
+    }
+
+    void UpdateNewNearCell( int i, int j, int prevRow, int prevCol )
+    {
+        if( !IsValid(i,j) )
+            return;
+
+        bool wasNear = prevRow != -1 && prevCol != -1 
+            && Mathf.Abs(i-prevRow) <= numNearRings
+            && Mathf.Abs(j-prevCol) <= numNearRings;
+
+        if( !wasNear )
+        {
+            // is there a free one we can take?
+            if( unusedNearObjs.Count > 0 )
+            {
+                cells[i,j] = unusedNearObjs.Dequeue();
+                cells[i,j].SetActive(true);
+            }
+            else
+            {
+                cells[i,j] = (GameObject)Instantiate( nearPrefab );
+            }
+
+            cells[i,j].transform.position = GetCellCenter(i,j);
+            cells[i,j].SendMessage("OnBecameNearLOD", SendMessageOptions.DontRequireReceiver );
         }
     }
 	
 	// Update is called once per frame
 	void Update()
     {
-        Vector3 viewPt = GetViewPoint();
+        if( debugFreeze )
+            return;
+
+        Vector3 viewPt = GetViewPosition();
         int currRow = GetRow(viewPt);
         int currCol = GetCol(viewPt);
+        Debug.Log(currRow+", "+currCol);
         if( prevRow != currRow || prevCol != currCol )
         {
             if( prevRow != -1 && prevCol != -1 )
             {
-                for( int di = -numRingsNear; di <= numRingsNear; di++ )
-                for( int dj = -numRingsNear; dj <= numRingsNear; dj++ )
-                    UpdateCell( prevRow+di, prevCol+dj, currRow, currCol );
+                for( int di = -numNearRings; di <= numNearRings; di++ )
+                for( int dj = -numNearRings; dj <= numNearRings; dj++ )
+                    UpdateOldNearCell( prevRow+di, prevCol+dj, currRow, currCol );
             }
 
-            for( int di = -numRingsNear; di <= numRingsNear; di++ )
-            for( int dj = -numRingsNear; dj <= numRingsNear; dj++ )
-                UpdateCell( currRow+di, currCol+dj, currRow, currCol );
+            for( int di = -numNearRings; di <= numNearRings; di++ )
+            for( int dj = -numNearRings; dj <= numNearRings; dj++ )
+                UpdateNewNearCell( currRow+di, currCol+dj, prevRow, prevCol );
+
+            prevRow = currRow;
+            prevCol = currCol;
         }
 	
 	}
