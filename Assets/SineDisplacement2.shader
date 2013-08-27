@@ -5,6 +5,8 @@ Shader "Steve/Sine Displacement 2"
         MainColor ("Main Color", COLOR)  = ( 0.5, 0.5, 1, 1 )
         MainTex ("Main Texture", 2D) = "" { }
 
+        EmissionPower ("Emission Power", float) = 1
+        EmissiveColor ("Emissive Color", COLOR) = (0.5, 0.5, 0.5, 0.5)
         Amplitude ("Amplitude", float) = 1
         Frequency ("Frequency", float) = 0.2
         Direction ("Direction", Vector) = (1,0,0,0)
@@ -31,6 +33,8 @@ Shader "Steve/Sine Displacement 2"
 #pragma surface surf Lambert vertex:vert
 
         float4 MainColor;
+        float EmissionPower;
+        float4 EmissiveColor;
         float Amplitude;
         float Frequency;
         float4 Origin;
@@ -75,12 +79,17 @@ Shader "Steve/Sine Displacement 2"
         struct Input
         {
             float2 uv_Maintex;
+            float3 viewDir;
         };
 
         void surf( Input IN, inout SurfaceOutput o )
         {
             o.Albedo = MainColor.rgb;
             o.Alpha = MainColor.a;
+
+            o.Emission = EmissiveColor * pow(
+                    saturate(dot( normalize(IN.viewDir), o.Normal )),
+                    EmissionPower);
         }
 
         ENDCG
