@@ -111,4 +111,4 @@ Material:
       data:
         first:
           name: EmissiveColor
-        second: {r: .5, g: .5, b: .5, a: .5}
+        second: {r: .352941185, g: .345098048, b: .337254912, a: .494117647}

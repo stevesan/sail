@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class Utils
 {
+    public static int[] DirToRowOffset = {1, 0, -1, 0};
+    public static int[] DirToColOffset = {0, 1, 0, -1};
+
     public static void Assert( bool result, string msg = "see callstack" )
     {
         if( !result )

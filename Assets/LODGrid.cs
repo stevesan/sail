@@ -68,6 +68,14 @@ public class LODGrid : MonoBehaviour
                     (i+0.5f) * cellSize.y ));
     }
 
+    public T GetCellAs<T>( int i, int j ) where T : MonoBehaviour
+    {
+        if( IsValid( i, j ) && cells[i,j] != null )
+            return cells[i,j].GetComponent<T>();
+        else
+            return null;
+    }
+
 	// Use this for initialization
 	void Start () {
 	
@@ -102,6 +110,13 @@ public class LODGrid : MonoBehaviour
         }
     }
 
+    public struct OnLODStateChangedParms
+    {
+        public LODGrid grid;
+        public int i;
+        public int j;
+    }
+
     void UpdateNewNearCell( int i, int j, int prevRow, int prevCol )
     {
         if( !IsValid(i,j) )
@@ -124,9 +139,8 @@ public class LODGrid : MonoBehaviour
                 cells[i,j] = (GameObject)Instantiate( nearPrefab );
             }
 
-            cells[i,j].transform.position = GetCellCenter(i,j);
-            cells[i,j].SendMessage("OnBecameNearLOD", SendMessageOptions.DontRequireReceiver );
         }
+
     }
 	
 	// Update is called once per frame
@@ -138,7 +152,6 @@ public class LODGrid : MonoBehaviour
         Vector3 viewPt = GetViewPosition();
         int currRow = GetRow(viewPt);
         int currCol = GetCol(viewPt);
-        Debug.Log(currRow+", "+currCol);
         if( prevRow != currRow || prevCol != currCol )
         {
             if( prevRow != -1 && prevCol != -1 )
@@ -151,6 +164,21 @@ public class LODGrid : MonoBehaviour
             for( int di = -numNearRings; di <= numNearRings; di++ )
             for( int dj = -numNearRings; dj <= numNearRings; dj++ )
                 UpdateNewNearCell( currRow+di, currCol+dj, prevRow, prevCol );
+
+            for( int di = -numNearRings; di <= numNearRings; di++ )
+            for( int dj = -numNearRings; dj <= numNearRings; dj++ )
+            {
+                OnLODStateChangedParms p = new OnLODStateChangedParms();
+                p.grid = this;
+                p.i = currRow + di;
+                p.j = currCol + dj;
+
+                if( IsValid(p.i, p.j) )
+                {
+                    cells[p.i,p.j].transform.position = GetCellCenter(p.i,p.j);
+                    cells[p.i,p.j].SendMessage("OnLODStateChanged", p, SendMessageOptions.DontRequireReceiver );
+                }
+            }
 
             prevRow = currRow;
             prevCol = currCol;

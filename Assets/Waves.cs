@@ -9,17 +9,6 @@ public class Waves : MonoBehaviour
     public Transform debugBuoy;
 
     public float visualAmplitudeScale = 1f;
-
-	// Use this for initialization
-	void Start()
-    {
-	
-	}
-
-    void Update()
-    {
-    }
-
 	
 	// Update is called once per frame
 	void LateUpdate ()
