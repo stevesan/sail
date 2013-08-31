@@ -87,7 +87,6 @@ Shader "Steve/Sine Displacement 2"
         };
 
         void surf( Input IN, inout SurfaceOutput o )
-
         {
             o.Albedo = IN.color;
             o.Alpha = IN.color.a;

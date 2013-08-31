@@ -3,6 +3,8 @@ using System.Collections;
 
 public class BoatControls : MonoBehaviour
 {
+    public static BoatControls main = null;
+
     const int MaxShifts = 2;
     const float ShiftDist = 0.7f;
 
@@ -24,9 +26,16 @@ public class BoatControls : MonoBehaviour
     private int rudderNotch = 0;
     public Utils.SmoothDampedFloat rudderYaw = new Utils.SmoothDampedFloat();
 
-    private Vector3 bsAnchorToTargetOrig;
-    private bool saveQueued = false;
-    private bool loadQueued = false;
+    Vector3 bsAnchorToTargetOrig;
+    bool saveQueued = false;
+    bool loadQueued = false;
+    bool checkpointLoadQueued = false;
+
+    void Awake()
+    {
+        Utils.Assert( main == null );
+        main = this;
+    }
 
     void Start()
     {
@@ -163,6 +172,8 @@ public class BoatControls : MonoBehaviour
             saveQueued = true;
         else if( Input.GetKeyDown("9") )
             loadQueued = true;
+        else if( Input.GetKeyDown("0") )
+            checkpointLoadQueued = true;
 	}
 
     public Vector3 GetBoatPosition()
@@ -184,9 +195,14 @@ public class BoatControls : MonoBehaviour
         {
             QuickLoad(userSavePrefix);
         }
+        else if( checkpointLoadQueued )
+        {
+            QuickLoad("checkpoint");
+        }
 
         saveQueued = false;
         loadQueued = false;
+        checkpointLoadQueued = false;
 
         //----------------------------------------
         //  Poking the shore

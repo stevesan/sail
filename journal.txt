@@ -2,6 +2,7 @@
 TODO:
 
 - checkpoints
+- make all checkpoints/stars float and bob like buoys, with an anchor so they don't drift far
 - save lake state (ie. waves origin)
 - progression:
     start in narrow dock, perp to wind.

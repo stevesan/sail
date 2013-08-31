@@ -3,7 +3,6 @@ using System.Collections;
 
 public class Checkpoint : MonoBehaviour
 {
-
 	// Use this for initialization
 	void Start()
     {
@@ -18,7 +17,10 @@ public class Checkpoint : MonoBehaviour
 
     void OnTriggerEnter( Collider col )
     {
-        if( Utils.FindComponentUpward<BoatControls>(col.gameObject) != null )
-            Destroy(this.gameObject);
+        if( Utils.FindComponentUpward<Boat>(col.gameObject) != null )
+        {
+            BoatControls.main.QuickSave("checkpoint");
+            Debug.Log("Checkpoint!");
+        }
     }
 }

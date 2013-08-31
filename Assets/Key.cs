@@ -18,7 +18,7 @@ public class Key : MonoBehaviour
 
     void OnTriggerEnter( Collider col )
     {
-        if( Utils.FindComponentUpward<BoatControls>(col.gameObject) != null )
+        if( Utils.FindComponentUpward<Boat>(col.gameObject) != null )
             Destroy(this.gameObject);
     }
 }
