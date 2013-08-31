@@ -24,6 +24,11 @@ public class Sail : MonoBehaviour
             target = gameObject.GetComponent<Rigidbody>();
     }
 
+    void OnCapsizeRecover()
+    {
+        prevPos = transform.position;
+    }
+
     void FixedUpdate()
     {
         // We can NOT just use target.velocity here, since we are concerned about our own velocity!
@@ -48,13 +53,13 @@ public class Sail : MonoBehaviour
         }
     }
 
-    void QuickSave()
+    void QuickSave(string prefix)
     {
-        Utils.SaveVector3( gameObject.name+".sailPrevPos", prevPos );
+        Utils.SaveVector3( prefix+gameObject.name+".sailPrevPos", prevPos );
     }
 
-    void QuickLoad()
+    void QuickLoad(string prefix)
     {
-        Utils.LoadVector3( gameObject.name+".sailPrevPos", ref prevPos );
+        Utils.LoadVector3( prefix+gameObject.name+".sailPrevPos", ref prevPos );
     }
 }

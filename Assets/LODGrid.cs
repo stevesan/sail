@@ -130,14 +130,10 @@ public class LODGrid : MonoBehaviour
         {
             // is there a free one we can take?
             if( unusedNearObjs.Count > 0 )
-            {
                 cells[i,j] = unusedNearObjs.Dequeue();
-                cells[i,j].SetActive(true);
-            }
             else
-            {
                 cells[i,j] = (GameObject)Instantiate( nearPrefab );
-            }
+            cells[i,j].SetActive(true);
 
         }
 

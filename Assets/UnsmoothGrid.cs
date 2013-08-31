@@ -32,6 +32,7 @@ public class UnsmoothGrid : MonoBehaviour
         }
         Mesh mesh = GetComponent<MeshFilter>().mesh;
         mesh.vertices = verts;
+        mesh.RecalculateNormals();
     }
 
     public int GetUniqueVertId( int i, int j )
@@ -123,6 +124,15 @@ public class UnsmoothGrid : MonoBehaviour
             uniqueVerts[ k, 0 ] = v;
     }
 
+    Vector3 GetCornerVertex( int ci, int cj )
+    {
+        return uniqueVerts[ ci*res, cj*res ];
+    }
+    void SetCornerVertex( int ci, int cj, Vector3 v )
+    {
+        uniqueVerts[ ci*res, cj*res ] = v;
+    }
+
     void OnLODStateChanged( LODGrid.OnLODStateChangedParms p )
     {
         if( !inited )
@@ -139,13 +149,45 @@ public class UnsmoothGrid : MonoBehaviour
 
             if( nbor != null && nbor.leadershipValue > this.leadershipValue )
             {
-                for( int k = 0; k < res+1; k++ )
+                for( int k = 1; k < res; k++ )
                 {
                     Vector3 nborVert = nbor.GetBorderVertex( oppDir, k );
                     Vector3 myVert = GetBorderVertex( dir, k );
                     myVert.y = nborVert.y;
                     SetBorderVertex( dir, k, myVert );
                 }
+            }
+        }
+
+        // handle the corners
+        for( int ci = 0; ci < 2; ci++ )
+        for( int cj = 0; cj < 2; cj++ )
+        {
+            UnsmoothGrid bestNbor = null;
+            int bi = -1;
+            int bj = -1;
+            
+            for( int ni = -1; ni < 1; ni++ )
+            for( int nj = -1; nj < 1; nj++ )
+            {
+                UnsmoothGrid nbor = p.grid.GetCellAs<UnsmoothGrid>(p.i+ci+ni, p.j+cj+nj);
+
+                if( nbor == null )
+                    continue;
+
+                if( bestNbor == null || nbor.leadershipValue > bestNbor.leadershipValue )
+                {
+                    bi = ni;
+                    bj = nj;
+                    bestNbor = nbor;
+                }
+            }
+
+            if( bestNbor != null )
+            {
+                Vector3 v = GetCornerVertex( ci, cj );
+                v.y = bestNbor.GetCornerVertex( -bi, -bj ).y;
+                SetCornerVertex( ci, cj, v );
             }
         }
 

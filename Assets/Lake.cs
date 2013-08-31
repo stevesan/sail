@@ -7,6 +7,8 @@ public class Lake : MonoBehaviour
     public float wavesFreq;
     public float wavesAmp;
     public float waveSpeedScale;
+    
+    private float waveOffset = 0f;
 
     void Awake()
     {
@@ -20,7 +22,11 @@ public class Lake : MonoBehaviour
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void Update()
+    {
+        float windMag = Wind.main.force.magnitude;
+        float waveSpeed = waveSpeedScale * windMag;
+        waveOffset += Time.deltaTime * waveSpeed;
 	
 	}
 
@@ -31,9 +37,7 @@ public class Lake : MonoBehaviour
 
     public float GetWaveOffset()
     {
-        float windMag = Wind.main.force.magnitude;
-        float waveSpeed = waveSpeedScale * windMag;
-        return Time.time * waveSpeed;
+        return waveOffset;
     }
 
     public float GetHeightAt( Vector3 wsPos )
@@ -43,5 +47,15 @@ public class Lake : MonoBehaviour
         float t = Vector3.Dot( wsPos-origin, GetWaveDirection() );
         return transform.position.y
             + wavesAmp * Mathf.Sin( 2*Mathf.PI*wavesFreq * t );
+    }
+
+    public void QuickSave(string prefix)
+    {
+        PlayerPrefs.SetFloat(prefix+"lakeWaveOffset", waveOffset);
+    }
+
+    public void QuickLoad(string prefix)
+    {
+        waveOffset = PlayerPrefs.GetFloat(prefix+"lakeWaveOffset", waveOffset);
     }
 }

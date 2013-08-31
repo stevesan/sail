@@ -103,12 +103,13 @@ public class Utils
     [System.Serializable]
     public class SmoothDampedFloat
     {
-        public float current;
-        public float target;
         public float smoothTime = 0.5f;
         public bool isAngle = false;
 
-        private float velocity;
+        public float current { get; private set; }
+        public float target;
+
+        private float velocity = 0f;
 
         public void Update()
         {
@@ -116,6 +117,13 @@ public class Utils
                 current = Mathf.SmoothDampAngle( current, target, ref velocity, smoothTime );
             else
                 current = Mathf.SmoothDamp( current, target, ref velocity, smoothTime );
+        }
+
+        public void SetInstant(float value)
+        {
+            current = value;
+            target = value;
+            velocity = 0f;
         }
 
         public void ProfileSave( string prefix )
@@ -141,4 +149,5 @@ public class Utils
         return (transform.InverseTransformPoint(delta)
                 - transform.InverseTransformPoint(Vector3.zero)).magnitude;
     }
+
 }
