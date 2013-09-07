@@ -9,6 +9,9 @@ Shader "Steve/Sine Displacement 2"
         Frequency ("Frequency", float) = 0.2
         Direction ("Direction", Vector) = (1,0,0,0)
         Origin ("Origin", Vector) = (0,0,0,1)
+
+        LatAmplitude( "LatAmplitude", float ) = 1
+        LatFrequency( "LatFrequency", float ) = 0.2
     }
     Subshader
     {
@@ -36,6 +39,8 @@ Shader "Steve/Sine Displacement 2"
         float4 Origin;
         float4 Direction;
 
+        float LatAmplitude;
+        float LatFrequency;
 
         float3x3 axisAngleRotationMatrix( float3 axis, float angleRads )
         {
@@ -64,9 +69,16 @@ Shader "Steve/Sine Displacement 2"
             //----------------------------------------
             const float pi = 3.14159;
             float t = dot(normalize(Direction), v.vertex-Origin);
+
+            // perturb the t value slightly by a sin wave, so the waves aren't perfectly straight
+            float3 xAxis = normalize( cross( float3(0,1,0), normalize(Direction) ) );
+            float tx = dot( xAxis, v.vertex-Origin );
+            t += LatAmplitude * sin( 2*pi*LatFrequency*tx );
+
             float theta = 2*pi * Frequency * t;
             float sinval = sin( theta );
             v.vertex.y += Amplitude * sinval;
+
 
             //----------------------------------------
             // rotate normal. this isn't perfect, since it will cause a gradient
@@ -76,7 +88,6 @@ Shader "Steve/Sine Displacement 2"
 
             /*
             float grad = Amplitude * 2*pi * Frequency * cos( theta );
-            float3 xAxis = cross( float3(0,1,0), normalize(Direction) );
             float rads = atan(grad);
             v.normal = mul(
                     axisAngleRotationMatrix( xAxis, rads ),

@@ -1,6 +1,15 @@
 
 TODO:
 
+- have terrain morph on special events??
+- two mountains part to reveal a new path...yes!
+    would be cooler if they were deformed, rather than just two models moving.
+    like two Gaussian's moving apart..formally a tall mountain..heh
+- really would like better rope physics. like Brothers
+
+- have a light metero shower, with meteors hitting the water
+- thunder storm
+
 - make all checkpoints/stars float and bob like buoys, with an anchor so they don't drift far
 - progression:
     start in narrow dock, perp to wind.

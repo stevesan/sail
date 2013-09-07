@@ -79,6 +79,14 @@ Material:
         first:
           name: EmissionPower
         second: 1.20000005
+      data:
+        first:
+          name: LatAmplitude
+        second: .00999999978
+      data:
+        first:
+          name: LatFrequency
+        second: 4
     m_Colors:
       data:
         first:

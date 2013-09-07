@@ -5,12 +5,16 @@ public class WindSounds : MonoBehaviour
 {
     public static Wind main;
     public Transform listener;
+    public float perlinPerturbAmp;
 
     void Update()
     {
         // compute volume dependent on magnitude
         float windMag = Wind.main.force.magnitude;
-        audio.volume = Utils.Unlerp( 0, 10, windMag );
+
+        // perturb with perlin noise
+        float p = Mathf.PerlinNoise( 0, Time.time ) * perlinPerturbAmp;
+        audio.volume = Utils.Unlerp( 0, 10, windMag ) + p;
     }
 
     void LateUpdate()
