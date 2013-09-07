@@ -150,4 +150,14 @@ public class Utils
                 - transform.InverseTransformPoint(Vector3.zero)).magnitude;
     }
 
+    public static Vector3 Project( Vector3 v, Vector3 onto )
+    {
+        return onto * Vector3.Dot( v, onto );
+    }
+
+    public static Vector3 PositiveProject( Vector3 v, Vector3 onto )
+    {
+        return onto * Mathf.Max(0, Vector3.Dot( v, onto ));
+    }
+
 }

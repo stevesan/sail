@@ -9,8 +9,9 @@ public class BoatControls : MonoBehaviour
     const float ShiftDist = 0.7f;
 
     public Transform rudder;
+    public Transform till;
     public HingeJoint sailJoint;
-    public Transform boatTrans;
+    public BoatBody boatBody;
     public Transform player;
     public MainSheet mainSheet;
     public float lenPerSheetChange;
@@ -40,13 +41,13 @@ public class BoatControls : MonoBehaviour
     void Start()
     {
         Vector3 wsAnchor = sailJoint.transform.TransformPoint( sailJoint.anchor );
-        bsAnchorToTargetOrig = boatTrans.InverseTransformDirection( mainSheet.target.position - wsAnchor );
+        bsAnchorToTargetOrig = boatBody.transform.InverseTransformDirection( mainSheet.target.position - wsAnchor );
     }
 
     float GetMaxSheetLengthForAngle( float degs )
     {
         Vector3 wsMastAxis = sailJoint.transform.TransformDirection( sailJoint.axis );
-        Vector3 wsAnchorToTarget = boatTrans.TransformDirection( bsAnchorToTargetOrig );
+        Vector3 wsAnchorToTarget = boatBody.transform.TransformDirection( bsAnchorToTargetOrig );
         Vector3 wsRotatedAnchorToTarget = Quaternion.AngleAxis( degs, wsMastAxis ) * wsAnchorToTarget;
 
         Vector3 wsAnchor = sailJoint.transform.TransformPoint( sailJoint.anchor );
@@ -72,16 +73,17 @@ public class BoatControls : MonoBehaviour
 	// Update is called once per frame
 	void Update ()
     {
-        if( Input.GetKeyDown("q") && rudderNotch < 8 )
+        if( Input.GetKeyDown("c") && rudderNotch < 8 )
             rudderNotch++;
 
-        if( Input.GetKeyDown("e") && rudderNotch > -8 )
+        if( Input.GetKeyDown("z") && rudderNotch > -8 )
             rudderNotch--;
 
         rudderYaw.target = rudderNotch * 10;
         rudderYaw.isAngle = true;
         rudderYaw.Update();
         rudder.localEulerAngles = new Vector3( 0, rudderYaw.current, 0 );
+        till.localEulerAngles = new Vector3( 0, rudderYaw.current/5f, 0 );
 
         //----------------------------------------
         //  Sheet/sail control
@@ -133,30 +135,31 @@ public class BoatControls : MonoBehaviour
         //  Jab the sail left/right
         //----------------------------------------
         float jabMag = 5f;
-        if( Input.GetKeyDown("z") )
-            sailJoint.rigidbody.AddForceAtPosition( -boatTrans.right * jabMag, sailJoint.transform.position );
-        if( Input.GetKeyDown("c") )
-            sailJoint.rigidbody.AddForceAtPosition( boatTrans.right * jabMag, sailJoint.transform.position );
+        if( Input.GetKeyDown("q") )
+            sailJoint.rigidbody.AddForceAtPosition( -boatBody.transform.right * jabMag, sailJoint.transform.position );
+        if( Input.GetKeyDown("e") )
+            sailJoint.rigidbody.AddForceAtPosition( boatBody.transform.right * jabMag, sailJoint.transform.position );
         // We should counter that force on the boat, to avoid a net translational force.
 
         //----------------------------------------
         //  Capsizing..
         //----------------------------------------
-        if( Vector3.Dot(boatTrans.up, Vector3.up) < 0.0f )
+        if( Vector3.Dot(boatBody.transform.up, Vector3.up) < 0.0f )
         {
             if( Input.GetKeyDown("p") )
             {
+                // TODO this is fucked 
                 // temporarily parent the sail to the boat
                 Transform oldSailParent = sailJoint.transform.parent;
-                sailJoint.transform.parent = boatTrans;
-                boatTrans.transform.up = Vector3.up;
+                sailJoint.transform.parent = boatBody.transform;
+                boatBody.transform.transform.up = Vector3.up;
                 sailJoint.transform.parent = oldSailParent;
                 ReleaseSheetBlock();
 
                 BroadcastMessage("OnCapsizeRecover", sailJoint, SendMessageOptions.DontRequireReceiver);
-                BroadcastMessage("OnCapsizeRecover", boatTrans, SendMessageOptions.DontRequireReceiver);
+                BroadcastMessage("OnCapsizeRecover", boatBody, SendMessageOptions.DontRequireReceiver);
 
-                boatTrans.rigidbody.velocity = Vector3.zero;
+                boatBody.rigidbody.velocity = Vector3.zero;
                 sailJoint.rigidbody.velocity = Vector3.zero;
 
                 rudderNotch = 0;
@@ -178,7 +181,7 @@ public class BoatControls : MonoBehaviour
 
     public Vector3 GetBoatPosition()
     {
-        return boatTrans.transform.position;
+        return boatBody.transform.position;
     }
 
     public void FixedUpdate()
@@ -213,9 +216,7 @@ public class BoatControls : MonoBehaviour
         {
             GameObject gob = hit.collider.gameObject;
 
-            // make sure we didn't hit our own boat
-            if( Utils.FindComponentUpward<BoatControls>(gob) != this
-                    && Utils.FindComponentUpward<Lake>(gob) == null )
+            if( Utils.FindComponentUpward<Boat>(gob) == null )
             {
                 // we CAN push off
                 pushCrosshair.color = Color.green;
@@ -224,7 +225,7 @@ public class BoatControls : MonoBehaviour
                 {
                     // Do push
                     Vector3 force = -ray.direction * paddlePushForceMagnitude;
-                    boatTrans.rigidbody.AddForceAtPosition( force, ray.origin );
+                    boatBody.rigidbody.AddForceAtPosition( force, ray.origin );
 
                     GameObject fx = (GameObject)Instantiate(paddlePushFx, hit.point, Quaternion.identity);
                     fx.transform.forward = hit.normal;
@@ -238,7 +239,7 @@ public class BoatControls : MonoBehaviour
     {
         Debug.Log("quick saving");
 
-        boatTrans.gameObject.BroadcastMessage("QuickSave", prefix, SendMessageOptions.DontRequireReceiver );
+        boatBody.gameObject.BroadcastMessage("QuickSave", prefix, SendMessageOptions.DontRequireReceiver );
         sailJoint.gameObject.BroadcastMessage("QuickSave", prefix, SendMessageOptions.DontRequireReceiver );
         Lake.main.QuickSave(prefix);
 
@@ -246,8 +247,9 @@ public class BoatControls : MonoBehaviour
         PlayerPrefs.SetFloat(prefix+"sailLimitsMin", sailJoint.limits.min);
         PlayerPrefs.SetFloat(prefix+"sailLimitsMax", sailJoint.limits.max);
 
-        Utils.SaveRigidbody( prefix+"boat", boatTrans.rigidbody );
+        Utils.SaveRigidbody( prefix+"boat", boatBody.rigidbody );
         Utils.SaveTransform( prefix+"rudder", rudder );
+        Utils.SaveTransform( prefix+"till", till );
         Utils.SaveRigidbody( prefix+"sail", sailJoint.rigidbody );
 
         PlayerPrefs.SetFloat(prefix+"sheetInLength", mainSheet.sheetInLength);
@@ -262,7 +264,7 @@ public class BoatControls : MonoBehaviour
 
     public void QuickLoad(string prefix)
     {
-        boatTrans.gameObject.BroadcastMessage("QuickLoad", prefix, SendMessageOptions.DontRequireReceiver );
+        boatBody.gameObject.BroadcastMessage("QuickLoad", prefix, SendMessageOptions.DontRequireReceiver );
         sailJoint.gameObject.BroadcastMessage("QuickLoad", prefix, SendMessageOptions.DontRequireReceiver );
         Lake.main.QuickLoad(prefix);
 
@@ -272,8 +274,9 @@ public class BoatControls : MonoBehaviour
         limits.max = PlayerPrefs.GetFloat(prefix+"sailLimitsMax", limits.max);
         sailJoint.limits = limits;
 
-        Utils.LoadRigidbody( prefix+"boat", boatTrans.rigidbody );
+        Utils.LoadRigidbody( prefix+"boat", boatBody.rigidbody );
         Utils.LoadTransform( prefix+"rudder", rudder );
+        Utils.LoadTransform( prefix+"till", till );
         Utils.LoadRigidbody( prefix+"sail", sailJoint.rigidbody );
 
         mainSheet.sheetInLength = PlayerPrefs.GetFloat(prefix+"sheetInLength", mainSheet.sheetInLength);

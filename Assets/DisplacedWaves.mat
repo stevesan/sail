@@ -115,4 +115,4 @@ Material:
       data:
         first:
           name: CapColor
-        second: {r: 0, g: 0, b: 0, a: 0}
+        second: {r: .61288929, g: .801470578, b: .715633571, a: 1}

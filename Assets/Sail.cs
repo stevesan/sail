@@ -5,11 +5,12 @@ public class Sail : MonoBehaviour
 {
     static float DebugDrawScale = 5;
 
-    public float modulus;
     public Rigidbody target;
-    public Vector3 localSailNormal;
 
-    public bool catchesWind = false;
+    public float normalModulus = 1;
+    public float toMastFraction = 1;
+    public Vector3 planeNormal;
+    public Vector3 toMast;
 
     Vector3 prevPos;
 
@@ -31,25 +32,23 @@ public class Sail : MonoBehaviour
 
     void FixedUpdate()
     {
-        // We can NOT just use target.velocity here, since we are concerned about our own velocity!
-        Vector3 velocity = (transform.position - prevPos) / Time.fixedDeltaTime;
-        Vector3 wsNormal = transform.TransformDirection( localSailNormal );
-        Vector3 dragForce = -modulus * wsNormal * Vector3.Dot(wsNormal, velocity);
-
-        target.AddForceAtPosition( dragForce, transform.position );
-        Debug.DrawLine( transform.position, transform.position+dragForce*DebugDrawScale, Color.red );
-
-        prevPos = transform.position;
+        Vector3 wsNormal = transform.TransformDirection( planeNormal );
+        Vector3 wsToMast = transform.TransformDirection( toMast );
 
         //----------------------------------------
         //  Wind
         //----------------------------------------
-        if( catchesWind && Wind.main != null )
+        if( (Mathf.Abs(normalModulus) > 0 )
+                && Wind.main != null )
         {
-            Vector3 windForce = wsNormal * Vector3.Dot( Wind.main.force, wsNormal );
+            Vector3 windForce = normalModulus * Utils.Project( Wind.main.force, wsNormal );
             target.AddForceAtPosition( windForce, transform.position );
-
             Debug.DrawLine( transform.position, transform.position+windForce*DebugDrawScale, Color.blue );
+
+            // Add some in the toMast direction, to fudge things a bit
+            Vector3 toMastForce = toMastFraction * windForce.magnitude * wsToMast.normalized;
+            target.AddForceAtPosition( toMastForce, transform.position );
+            Debug.DrawLine( transform.position, transform.position+toMastForce*DebugDrawScale, new Color(1,0,1) );
         }
     }
 
