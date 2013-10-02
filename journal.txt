@@ -1,28 +1,38 @@
 
+GOAL: Pleasant aesthetic experience, ~30 min. Favor ease over realism, but still have enough physics for a sense of danger in high-winds.
+
 TODO:
 
+- integrate boat geo
+- start making it SOUND good
+    water splash
+        should have the up/down motion of the boat correspond with wooshes and slaps
+    wind effects
+- put interesting geometry around the corner..
+    need to get better at...3d modeling? or just create a better voxel editor?
+    would be nice to have heightmap->voxel exporter. then an editor to add things like canyons, etc.
+
+- behind boat wake effects
 - have terrain morph on special events??
 - two mountains part to reveal a new path...yes!
     would be cooler if they were deformed, rather than just two models moving.
     like two Gaussian's moving apart..formally a tall mountain..heh
 - really would like better rope physics. like Brothers
-
 - have a light metero shower, with meteors hitting the water
 - thunder storm
 
-- make all checkpoints/stars float and bob like buoys, with an anchor so they don't drift far
+- create visual for checkpoints. should be sizeable, like teleports rings in Ecco
+
 - progression:
     start in narrow dock, perp to wind.
     then S-shaped narrows, to get used to ruddering
     then sharper U turn, for a tack
-
     skill progression:
-        rudder
+        all-out down wind
+        rudder turning
+        checkpoint loading
+        actual turning
 
-- water gfx: rotate normals
-- speed particles
-- splash sounds?
-    should have the up/down motion of the boat correspond with wooshes and slaps
 
 TABLED:
 - centerboard control
@@ -40,3 +50,6 @@ DONE:
 - water: need to get basic lighting working in shader...
 - checkpoints
 - save lake state (ie. waves origin)
+- water gfx: rotate normals
+    this actually doesn't look great. I did an effect that changes alpha depending on viewing angle and it's quite cool
+- speed particles

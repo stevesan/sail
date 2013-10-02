@@ -9,3 +9,4 @@ Temp
 *.sln
 *.userprefs
 *.csproj
+bottle-message*.txt

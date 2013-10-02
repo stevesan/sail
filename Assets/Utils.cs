@@ -160,4 +160,13 @@ public class Utils
         return onto * Mathf.Max(0, Vector3.Dot( v, onto ));
     }
 
+    public static int SignOrZero( float v )
+    {
+        if( v > 0f )
+            return 1;
+        else if( v < 0f )
+            return -1;
+        else
+            return 0;
+    }
 }

@@ -18,6 +18,14 @@ public class BoatControls : MonoBehaviour
     public float paddlePushForceMagnitude = 1f;
     public float paddlePushLength = 10f;
 
+    [System.Serializable]
+    public class SimpleControlSettings
+    {
+        public float turnTorque = 100f;
+    }
+    public bool simpleControls = false;
+    public SimpleControlSettings simpleSettings;
+
     public GameObject paddlePushFx;
     public GUITexture pushCrosshair;
 
@@ -70,8 +78,7 @@ public class BoatControls : MonoBehaviour
         sailJoint.limits = limits;
     }
 
-	// Update is called once per frame
-	void Update ()
+    void UpdateSimControls()
     {
         if( Input.GetKeyDown("c") && rudderNotch < 8 )
             rudderNotch++;
@@ -140,6 +147,34 @@ public class BoatControls : MonoBehaviour
         if( Input.GetKeyDown("e") )
             sailJoint.rigidbody.AddForceAtPosition( boatBody.transform.right * jabMag, sailJoint.transform.position );
         // We should counter that force on the boat, to avoid a net translational force.
+    }
+
+    float limitsMinVelocity;
+    float limitsMaxVelocity;
+
+    void UpdateSimpleControls()
+    {
+        JointLimits limits = sailJoint.limits;
+
+        limits.min = Mathf.SmoothDampAngle( limits.min, -30, ref limitsMinVelocity, 0.1f );
+        limits.max = Mathf.SmoothDampAngle( limits.max, 30, ref limitsMaxVelocity, 0.1f );
+        sailJoint.useLimits = true;
+        sailJoint.limits = limits;
+
+        float maxLen = GetMaxSheetLengthForAngle(limits.min);
+        float sheetIn = mainSheet.GetMaxPossibleReach() - maxLen;
+        mainSheet.sheetInLength = sheetIn;
+    }
+
+	// Update is called once per frame
+	void Update ()
+    {
+        if( simpleControls )
+        {
+            UpdateSimpleControls();
+        }
+        else
+            UpdateSimControls();
 
         //----------------------------------------
         //  Capsizing..
@@ -186,6 +221,16 @@ public class BoatControls : MonoBehaviour
 
     public void FixedUpdate()
     {
+        if( simpleControls )
+        {
+            Vector3 boatTorque = Vector3.up;
+
+            int torqueSign = Input.GetKey("a") ? -1 :
+                Input.GetKey("d") ? 1 : 0;
+
+            boatBody.rigidbody.AddTorque( Vector3.up * simpleSettings.turnTorque * torqueSign );
+        }
+
         //----------------------------------------
         //  Save/load during fixed update, to play nicely with Physics
         //----------------------------------------
